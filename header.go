@@ -67,7 +67,8 @@ func (h *header) validate() error {
 		return errBadSignature
 	}
 
-	if binary.LittleEndian.Uint32(h.buf[4:8]) != binary.LittleEndian.Uint32(h.buf[8:12]) {
+	if binary.LittleEndian.Uint32(h.buf[4:8]) != binary.LittleEndian.Uint32(h.buf[8:12]) &&
+		binary.LittleEndian.Uint32(h.buf[4:8]) != binary.LittleEndian.Uint32(h.buf[8:12])+1 { // 有时会出现这个情况
 		return errBadSequenceNumber
 	}
 

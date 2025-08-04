@@ -1,6 +1,6 @@
 docs
 .vscode
-
+.idea
 # registry dumps and hives to ignore
 testdata/*.dump
 testdata/*.hive
