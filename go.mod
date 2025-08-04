@@ -1,3 +1,3 @@
-module github.com/prcoito/registry
+module github.com/WXjzcccc/registry
 
 go 1.14
