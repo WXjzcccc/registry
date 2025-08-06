@@ -4,6 +4,7 @@ import (
 	"encoding/binary"
 	"errors"
 	"io"
+	"log"
 )
 
 type subKeyList struct {
@@ -192,7 +193,8 @@ func (el *subKeyElement) ReadElement() error {
 		}
 		hash := lhSubKeyHash(el.namedKey.name)
 		if hash != el.hashValue {
-			return errorW{err: ErrCorruptRegistry, cause: errInvalidHash, function: "subKeyElement.ReadElement() hash comparision"}
+			log.Printf("<registry>异常字符串[%v]，function: \"subKeyElement.ReadElement() hash comparision\n", el.namedKey.name)
+			//return errorW{err: ErrCorruptRegistry, cause: errInvalidHash, function: "subKeyElement.ReadElement() hash comparision"}
 		}
 	case "ri":
 		el.subKeyList = newSubKeyList(

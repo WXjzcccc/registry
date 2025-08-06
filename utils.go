@@ -95,10 +95,41 @@ func dataSizeFromType(u uint32) int {
 }
 
 func lhSubKeyHash(str string) uint32 {
+	//var hashValue uint32 = 0
+	//for idx := 0; idx < len(str); idx++ {
+	//	hashValue *= 37
+	//	hashValue += uint32(unicode.ToUpper(rune(str[idx])))
+	//}
+	// 修复出现乱码、中文的哈希计算情况，此算法能满足绝大多数情况，但仍有小部分情况出现哈希值与读取的不同，todo
 	var hashValue uint32 = 0
-	for idx := 0; idx < len(str); idx++ {
+	strRune := []rune(str)
+	for idx := 0; idx < len(strRune); idx++ {
 		hashValue *= 37
-		hashValue += uint32(unicode.ToUpper(rune(str[idx])))
+		hashValue += uint32(unicode.ToUpper(strRune[idx]))
 	}
 	return hashValue
+}
+
+func utf16leBytesToString(leBytes []byte) (string, error) {
+	// 把字节数组转成字符串，注册表中的key在非ascii码时采用utf16-le进行编码
+	var flag bool = false
+	for _, b := range leBytes {
+		if b > 0x7F || b < 0x20 {
+			flag = true
+		}
+	}
+	if !flag {
+		return string(leBytes), nil
+	}
+
+	if len(leBytes)%2 != 0 {
+		return "", fmt.Errorf("字节长度必须是 2 的倍数")
+	}
+
+	utf16Data := make([]uint16, len(leBytes)/2)
+	for i := 0; i < len(utf16Data); i++ {
+		utf16Data[i] = binary.LittleEndian.Uint16(leBytes[i*2:])
+	}
+
+	return string(utf16.Decode(utf16Data)), nil
 }

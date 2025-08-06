@@ -97,8 +97,12 @@ func (nk *namedKey) Read() error {
 	if err != nil {
 		return errorW{err: ErrCorruptRegistry, cause: err, function: "namedKey.Read() io.ReadFull"}
 	}
-	nk.name = string(buf)
-
+	//nk.name = string(buf)
+	myName, err := utf16leBytesToString(buf)
+	if err != nil {
+		return err
+	}
+	nk.name = myName
 	loc, err := r.Seek(0, io.SeekCurrent)
 	if err != nil {
 		return errorW{err: ErrCorruptRegistry, cause: err, function: "namedKey.Read() r.Seek"}
