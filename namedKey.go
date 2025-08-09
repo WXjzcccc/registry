@@ -37,8 +37,8 @@ type namedKey struct {
 	keyNameSize   uint16
 	classNameSize uint16
 
-	name string
-
+	name       string
+	className  string
 	headerSize int64
 
 	values *valueList
@@ -124,5 +124,18 @@ func (nk *namedKey) Read() error {
 		return err
 	}
 
+	_, err = r.Seek(nk.binOffset+int64(nk.classNameOffset), io.SeekStart)
+	if err != nil {
+		return err
+	}
+	classNameBytes := make([]byte, nk.classNameSize)
+	_, err = io.ReadFull(r, classNameBytes)
+	if err != nil {
+		return err
+	}
+	nk.className, err = utf16leBytesToString(classNameBytes)
+	if err != nil {
+		return err
+	}
 	return nk.validate()
 }

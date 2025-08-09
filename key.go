@@ -336,3 +336,7 @@ func (k Key) ReadValueNames(n int) ([]string, error) {
 	sort.Strings(names)
 	return names, nil
 }
+
+func (k Key) GetClassName() string {
+	return k.nk.className
+}

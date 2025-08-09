@@ -2,10 +2,59 @@ package registry
 
 import (
 	"encoding/hex"
+	"fmt"
+	"log"
 	"reflect"
 	"strings"
 	"testing"
 )
+
+func TestClassName(t *testing.T) {
+	reg, err := Open("E:\\迅雷下载\\x64\\SYSTEM")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer reg.Close()
+	key, err := reg.OpenKey(fmt.Sprintf("%s\\Control\\LSA", "ControlSet001"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer key.Close()
+	var bootKeyObf []byte
+	jd, err := key.OpenSubKey("JD")
+
+	if err != nil {
+		t.Fatal(err)
+	}
+	skew, err := key.OpenSubKey("Skew1")
+	if err != nil {
+		t.Fatal(err)
+	}
+	gbg, err := key.OpenSubKey("GBG")
+	if err != nil {
+		t.Fatal(err)
+	}
+	data, err := key.OpenSubKey("Data")
+	if err != nil {
+		t.Fatal(err)
+	}
+	log.Println(jd.GetClassName())
+	jdc, err := hex.DecodeString(jd.GetClassName())
+	skewc, err := hex.DecodeString(skew.GetClassName())
+	gbgc, err := hex.DecodeString(gbg.GetClassName())
+	datac, err := hex.DecodeString(data.GetClassName())
+	bootKeyObf = append(bootKeyObf, jdc...)
+	bootKeyObf = append(bootKeyObf, skewc...)
+	bootKeyObf = append(bootKeyObf, gbgc...)
+	bootKeyObf = append(bootKeyObf, datac...)
+	transforms := []int{8, 5, 4, 2, 11, 9, 13, 3, 0, 6, 1, 12, 14, 10, 15, 7}
+	var bootKey []byte
+	for i := 0; i < len(bootKeyObf); i++ {
+		bootKey = append(bootKey, bootKeyObf[transforms[i]:transforms[i]+1]...)
+	}
+	bootKeyc := hex.EncodeToString(bootKey)
+	log.Println(bootKeyc)
+}
 
 func TestKey_ReadSubKeyNames(t *testing.T) {
 	type args struct {
